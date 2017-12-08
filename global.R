@@ -12,10 +12,12 @@ library(gplots)
 library(ggrepel)
 library(colorRamps)
 library(plotly)
+library(agricolae)
+library(corrplot)
 
 yve <- read.csv("melted_tomato.csv")
 yve <- yve[,c("Trait", "AccessionName", "Condition", "variable", "value")]
-head(yve)
+
 # yve <- na.omit(yve)
 
 yveNOVA <- read.csv("Pailles et al Tomato seedlings screen.csv")

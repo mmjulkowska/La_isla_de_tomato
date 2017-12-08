@@ -7,19 +7,118 @@ file.copy("Pailles et al Tomato seedlings screen.csv", file)
 	},
 contentType = "txt/csv")	
 
+output$Select_trait_for_anova <- renderUI({
+    traits_available <- unique(yve$Trait)
+    tagList(
+      selectizeInput("trait_compare", label=("Chose the phenotype"), choices= traits_available, multiple=F))    
+  })
+
+output$Select_condition_for_anova <- renderUI({
+    traits_available <- subset(yve, yve$Trait == input$trait_compare)
+    cond_available <- unique(traits_available$Condition)
+    tagList(
+      selectizeInput("cond_compare", label=("Chose the condition"), choices= cond_available, multiple=F))    
+  })
+
+output$Select_genotype_for_anova <- renderUI({
+    list_of_acc <- unique(yve$AccessionName)
+    
+    tagList(
+      selectizeInput("gen_compare", label=("Chose the genotypes to compare"), choices= list_of_acc, multiple= T,
+                     selected = c("VF36", "LA0317", "LA0421", "LA0426")))    
+  })
+
+output$Table1 <- renderDataTable({
+  traits_available <- subset(yve, yve$Trait == input$trait_compare)
+  data_available <- subset(traits_available, traits_available$Condition == input$cond_compare)
+  to_test <- subset(data_available, data_available$AccessionName %in% input$gen_compare)
+  to_test <- na.omit(to_test)
+  to_test$AccessionName <- as.factor(to_test$AccessionName)
+  
+  sum_test <- summaryBy(value ~ AccessionName + Trait + Condition, data = to_test, FUN = function(x) { c(m = mean(x), se = std.error(x), rep.no = length(x)) })
+  colnames(sum_test)[4] <- "Mean"
+  colnames(sum_test)[5] <- "StandardError"
+  colnames(sum_test)[6] <- "NumberOfReplicates"
+  sum_test
+  })
+
+output$ANOVA_message <- renderPrint({
+  traits_available <- subset(yve, yve$Trait == input$trait_compare)
+  data_available <- subset(traits_available, traits_available$Condition == input$cond_compare)
+  to_test <- subset(data_available, data_available$AccessionName %in% input$gen_compare)
+  to_test <- na.omit(to_test)
+  to_test$AccessionName <- as.factor(to_test$AccessionName)
+  to_test
+  
+  amod <- aov(value ~ AccessionName, data = to_test)
+  cat("ANOVA report:")
+  cat("\n")
+  cat("\n")
+  if(summary(amod)[[1]][[5]][1] < 0.05){
+    cat("The effect of Genotype is SIGNIFICANT on ", input$Select_trait_for_anova, "with a p-value of ", summary(amod)[[1]][[5]][1], ".")
+  }
+  if(summary(amod)[[1]][[5]][1] > 0.05){
+    cat("The effect of Genotype is NOT significant on ", input$Select_trait_for_anova, "with a p-value of ", summary(amod)[[1]][[5]][1], ".")
+  }
+})
+
+output$Tukey_message <- renderPrint({
+  traits_available <- subset(yve, yve$Trait == input$trait_compare)
+  data_available <- subset(traits_available, traits_available$Condition == input$cond_compare)
+  to_test <- subset(data_available, data_available$AccessionName %in% input$gen_compare)
+  to_test <- na.omit(to_test)
+  to_test$AccessionName <- as.factor(to_test$AccessionName)
+  to_test
+  
+  fit_tukey <- aov(value ~ AccessionName, data = to_test)
+  out <- HSD.test(fit_tukey, "AccessionName", group = T, alpha = 0.05)
+  out_tukey<-as.data.frame(out$groups)
+  out_tukey$AccessionName<-row.names(out_tukey)
+  cat("Tukey test result with p-value threshold of 0.05:")
+  cat("\n")
+  cat("\n")
+  print(as.data.frame(out_tukey), row.names=FALSE)
+  
+})
+
 
 output$plot2a <- renderPlot({
-  to_test <- yveNOVA[,c("AccessionName",input$tr_compare)]
-  to_test <- subset(to_test, to_test$AccessionName == input$gen_compare)
-  names(to_test)[2] <- "phenotype"
-  to_test[,1] <- as.factor(to_test[,1])
-  # then paste here ANOVA script with cluster as testing variable
-  amod <- aov(phenotype ~ AccessionName, data = to_test)
-  tuk <- glht(amod, linfct = mcp(AccessionName = "Tukey"))
-  tuk.cld <- cld(tuk)   
-  old.par <- par( mai=c(1,1,1.25,1))
-  plot(tuk.cld, las=1, col="olivedrab3", ylab=input$tr_compare)
+  traits_available <- subset(yve, yve$Trait == input$trait_compare)
+  data_available <- subset(traits_available, traits_available$Condition == input$cond_compare)
+  to_test <- subset(data_available, data_available$AccessionName %in% input$gen_compare)
+  to_test <- na.omit(to_test)
+  to_test$AccessionName <- as.factor(to_test$AccessionName)
+  
+  bam <- ggplot(data = to_test, aes(x = AccessionName, y= value, fill = AccessionName))
+  bam <- bam + geom_boxplot()
+  bam
 })
+
+output$BIG_cor_table <- renderDataTable({
+  pheno_cor <- Yve_Cast[,c("AccessionName",input$Trait_corr_graph_biggie)]
+  pheno_cor <- na.omit(pheno_cor)
+  pheno_cor
+})
+
+
+output$BIG_correlation_graph <- renderPlot({
+  pheno_cor <- Yve_Cast[,c("AccessionName",input$Trait_corr_graph_biggie)]
+  pheno_nona <- na.omit(pheno_cor)
+  pheno_ready <- pheno_nona[,2:ncol(pheno_nona)]
+  
+  
+  corrplot(
+    cor(pheno_ready, method = "pearson"),
+    method = input$corrplotMethod,
+    type = input$corType,
+    order = input$corOrder, 
+    col = brewer.pal(n = 8, name = "PuOr"),
+    tl.col = 'black', tl.cex=1, tl.offset = 3, tl.srt = 45
+  )
+  
+  
+})
+
 
 output$plot3 <- renderPlotly({
 
@@ -49,17 +148,41 @@ output$ClusterTree <- renderPlot({
 	# make a temporary subset based on Clust1, Clust2 and Clust3 (les traits)
   clust_lista <-input$Clust_traits
   clust_temp <- Yve_Cast[,c("AccessionName", clust_lista)]
-	clust_temp <- na.omit(clust_temp)
-	YVE_matrix <- clust_temp[,2:ncol(clust_temp)]
-	YVE_matrix = as.matrix(YVE_matrix)
-	row.names(YVE_matrix) <- clust_temp$AccessionName
-  colnames(YVE_matrix) <- colnames(clust_temp)[2:4]
-	YVE_t_matrix = t(YVE_matrix)
-	YVE_t_cor = cor(YVE_t_matrix,method=c("pearson"))
-	YVE_t_dist = dist(YVE_t_cor)
-	YVE_t_clust = hclust(YVE_t_dist, method="ward.D2")
+  clust_temp <- na.omit(clust_temp)
+  YVE_matrix <- clust_temp[,2:ncol(clust_temp)]
+  YVE_matrix = as.matrix(YVE_matrix)
+  row.names(YVE_matrix) <- clust_temp$AccessionName
+  colnames(YVE_matrix) <- colnames(clust_temp)[2:(length(clust_lista)+1)]
+  YVE_t_matrix = t(YVE_matrix)
+  YVE_t_cor = cor(YVE_t_matrix,method=c("pearson"))
+  YVE_t_dist = dist(YVE_t_cor)
+  YVE_t_clust = hclust(YVE_t_dist, method="ward.D2")  
 	Clufa <- plot(as.dendrogram(YVE_t_clust), horiz=T)
 	Clufa
+})
+
+output$Cluster_message <- renderPrint({
+  clust_lista <-input$Clust_traits
+  clust_temp <- Yve_Cast[,c("AccessionName", clust_lista)]
+  clust_temp <- na.omit(clust_temp)
+  YVE_matrix <- clust_temp[,2:ncol(clust_temp)]
+  YVE_matrix = as.matrix(YVE_matrix)
+  row.names(YVE_matrix) <- clust_temp$AccessionName
+  colnames(YVE_matrix) <- colnames(clust_temp)[2:(length(clust_lista)+1)]
+  YVE_t_matrix = t(YVE_matrix)
+  YVE_t_cor = cor(YVE_t_matrix,method=c("pearson"))
+  YVE_t_dist = dist(YVE_t_cor)
+  YVE_t_clust = hclust(YVE_t_dist, method="ward.D2") 
+  
+  cluster <- as.data.frame(cutree(YVE_t_clust,h=as.numeric(input$tree_cut)))
+  names(cluster)[1] <- "cluster"
+  clust_number <- length(unique(cluster$cluster))
+  
+  cat("Cutting the dengrodram at ", input$tree_cut, " will result in ", clust_number, " clusters.")
+  cat("\n")
+  cat("\n")
+  cat("Please be aware that clustering your data into too many clusters might not be informative.")
+  
 })
 # 
 
@@ -89,7 +212,7 @@ output$HotANOVA <- renderPlot({
   YVE_t_matrix = t(YVE_matrix)
   YVE_t_cor = cor(YVE_t_matrix,method=c("pearson"))
   YVE_t_dist = dist(YVE_t_cor)
-  YVE_t_clust = hclust(YVE_t_dist, method="ward.D2")  
+  YVE_t_clust = hclust(YVE_t_dist, method="ward.D2")   
 # cut_tree at $tree_cut value (but first make it numeric)
 cluster <- as.data.frame(cutree(YVE_t_clust,h=as.numeric(input$tree_cut)))
 names(cluster)[1] <- "cluster"
