@@ -7,6 +7,9 @@ file.copy("Pailles et al Tomato seedlings screen.csv", file)
 	},
 contentType = "txt/csv")	
 
+
+# - - - - - - - - >> INPUT ANOVA GRAPH << - - - - - - - - - - - - #
+
 output$Select_trait_for_anova <- renderUI({
     traits_available <- unique(yve$Trait)
     tagList(
@@ -27,6 +30,21 @@ output$Select_genotype_for_anova <- renderUI({
       selectizeInput("gen_compare", label=("Chose the genotypes to compare"), choices= list_of_acc, multiple= T,
                      selected = c("VF36", "LA0317", "LA0421", "LA0426")))    
   })
+
+output$ANOVA_bar_error <- renderUI({
+  if(input$ANOVA_graph_type == "Bar graph"){
+    selectizeInput(
+      inputId = "ANOVA_EB",
+      label = "Error bars represent:",
+      choices = c("Standard Error", "Standard Deviation"),
+      multiple = F)
+  }
+  else{
+    return()
+  }
+})
+
+# - - - - - - - - - - - - >> ANOVA OUTPUT << - - - - - - - - - - - - - 
 
 output$Table1 <- renderDataTable({
   traits_available <- subset(yve, yve$Trait == input$trait_compare)
@@ -89,36 +107,122 @@ output$plot2a <- renderPlot({
   to_test <- na.omit(to_test)
   to_test$AccessionName <- as.factor(to_test$AccessionName)
   
+  if(input$ANOVA_graph_type == "Bar graph"){
+    sum_test <- summaryBy(value ~ AccessionName + Trait + Condition, data = to_test, FUN = function(x) { c(m = mean(x), se = std.error(x), sd = sd(x)) })
+    bam <- ggplot(data = sum_test, aes(x = AccessionName, y= value.m, fill = AccessionName))
+    bam <- bam + geom_bar(stat = "identity", position=position_dodge(1))
+    
+    if(input$ANOVA_EB == "Standard Error"){
+      bam <- bam + geom_errorbar(aes(ymin = value.m - value.se, ymax =value.m + value.se), position=position_dodge(1))
+    }
+    
+    if(input$ANOVA_EB == "Standard Deviation"){
+      bam <- bam + geom_errorbar(aes(ymin = value.m - value.sd, ymax =value.m + value.sd), position=position_dodge(1))
+    }
+  }
+  
+  if(input$ANOVA_graph_type == "Box plot"){
   bam <- ggplot(data = to_test, aes(x = AccessionName, y= value, fill = AccessionName))
-  bam <- bam + geom_boxplot()
+  bam <- bam + geom_boxplot()}
+  
+  if(input$ANOVA_graph_type == "Scatter plot"){
+    bam <- ggplot(data = to_test, aes(x = AccessionName, y= value, fill = AccessionName))
+    bam <- bam + geom_point()}
+  
+  if(input$ANOVA_background == T){
+    bam <- bam + theme_minimal()}
+  
+  if(input$ANOVA_grid == T){
+    bam <- bam + theme(panel.grid.major = element_blank())}
+  
+  bam <- bam + ylab(input$trait_compare)
+  bam <- bam + xlab("Accession")
+  
+  bam <- bam + guides(fill=guide_legend(title= "Accession"))
+  
+  bam <- bam + theme(axis.text.x = element_text(angle = 90, hjust = 1))
+  
   bam
 })
 
-output$BIG_cor_table <- renderDataTable({
-  pheno_cor <- Yve_Cast[,c("AccessionName",input$Trait_corr_graph_biggie)]
-  pheno_cor <- na.omit(pheno_cor)
-  pheno_cor
+
+# - - - - - - - - >> DOWNLOAD STUFF << - - - - - - - - - 
+
+output$Download_ANOVA_table <- renderUI({
+  downloadButton("Download_ANOVA_tab", label="Download the table")
 })
 
+output$Download_ANOVA_tab <- downloadHandler(
+  filename = paste("TABLE Tomato Accessions ", input$trait_compare, "from Paillies et al.csv"),
+  content <- function(file) {
+    traits_available <- subset(yve, yve$Trait == input$trait_compare)
+    data_available <- subset(traits_available, traits_available$Condition == input$cond_compare)
+    to_test <- subset(data_available, data_available$AccessionName %in% input$gen_compare)
+    to_test <- na.omit(to_test)
+    to_test$AccessionName <- as.factor(to_test$AccessionName)
+    
+    sum_test <- summaryBy(value ~ AccessionName + Trait + Condition, data = to_test, FUN = function(x) { c(m = mean(x), se = std.error(x), rep.no = length(x)) })
+    colnames(sum_test)[4] <- "Mean"
+    colnames(sum_test)[5] <- "StandardError"
+    colnames(sum_test)[6] <- "NumberOfReplicates"
+    write.csv(sum_test, file)
+})
+
+CorrBiggie <- function(){
+  pheno_cor <- Yve_Cast[,c("AccessionName",input$Trait_corr_graph_biggie)]
+  pheno_nona <- na.omit(pheno_cor)
+  pheno_ready <- pheno_nona[,2:ncol(pheno_nona)]
+  pheno_ready_m <- as.matrix(pheno_ready)
+  colnames(pheno_ready_m) <- colnames(pheno_ready)
+  pheno_ready_m
+  
+  res <- rcorr(pheno_ready_m, type = input$corMethod)
+  
+  flattenCorrMatrix <- function(cormat, pmat) {
+    ut <- upper.tri(cormat)
+    data.frame(
+      row = rownames(cormat)[row(cormat)[ut]],
+      column = rownames(cormat)[col(cormat)[ut]],
+      cor  = (cormat)[ut],
+      p = pmat[ut]
+    )
+  }
+  
+  result <- flattenCorrMatrix(res$r, res$P)
+  result
+}
+
+output$BIG_cor_table <- renderDataTable({
+  CorrBiggie()
+  })
+
+output$dwnldCorr <- downloadHandler(
+  filename=function(){
+    paste("Correlation table tomato Paillies et al.csv", sep=" ")},
+  content <- function(file){
+    write.csv(CorrBiggie(), file)}
+)
+
+# - - - - - - - - - >> BIG CORRELATION ANALYSIS << - - - - - - - - - -
 
 output$BIG_correlation_graph <- renderPlot({
   pheno_cor <- Yve_Cast[,c("AccessionName",input$Trait_corr_graph_biggie)]
   pheno_nona <- na.omit(pheno_cor)
   pheno_ready <- pheno_nona[,2:ncol(pheno_nona)]
-  
+  pheno_ready_m <- as.matrix(pheno_ready)
+  colnames(pheno_ready_m) <- colnames(pheno_ready)
   
   corrplot(
-    cor(pheno_ready, method = "pearson"),
+    cor(pheno_ready_m, method = "pearson"),
     method = input$corrplotMethod,
     type = input$corType,
     order = input$corOrder, 
     col = brewer.pal(n = 8, name = "PuOr"),
     tl.col = 'black', tl.cex=1, tl.offset = 3, tl.srt = 45
   )
-  
-  
 })
 
+# - - - - - - - - >> SCATTER PLOT << - - - - - - - - -
 
 output$plot3 <- renderPlotly({
 
@@ -142,6 +246,8 @@ pheno_cor <- na.omit(pheno_cor)
 pval <- cor.test(pheno_cor[,2], pheno_cor[,3])$p.val
 pval[1]
 })
+
+# - - - - - - - - >> CLUSTER ANALYSIS << - - - - - - - - -
 
 # Cluster tree of ALL accessions based on three selected traits
 output$ClusterTree <- renderPlot({

@@ -29,12 +29,18 @@ helpText("Select genotypes to compare their salinity tolerance", br(), br(), "Th
 strong("DISCLAIMER:"), "As the results presented in here are based only on few biological replicates, the significant differences between the accessions should be interpreted with caution."),
 uiOutput("Select_trait_for_anova"),
 uiOutput("Select_condition_for_anova"),
-uiOutput("Select_genotype_for_anova")
+uiOutput("Select_genotype_for_anova"),
+hr(),
+checkboxInput("ANOVA_background", "Remove background?"),
+checkboxInput("ANOVA_grid", "Remove major grid lines?"),
+selectizeInput("ANOVA_graph_type", "Graph type:", choices = c("Box plot", "Bar graph", "Scatter plot"), selected = "Box plot"),
+uiOutput("ANOVA_bar_error")
 )),
 mainPanel(
 verbatimTextOutput("ANOVA_message"),
 plotOutput("plot2a"),
 verbatimTextOutput("Tukey_message"),
+uiOutput("Download_ANOVA_table"),
 dataTableOutput("Table1")) 
 # end tabPanel # 2
 ),
@@ -77,6 +83,7 @@ tabPanel("Examine correlations between individual traits", icon=icon("search-plu
                ),
                mainPanel(
                  plotOutput("BIG_correlation_graph"),
+                 downloadButton("dwnldCorr", "Download correlation table"),
                  dataTableOutput("BIG_cor_table")
                )
                ),       
