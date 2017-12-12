@@ -79,7 +79,7 @@ tabPanel("Examine correlations between individual traits", icon=icon("search-plu
                    "Leaf Elongation Factor at Control Conditions" = "control_LeafElongationFactor", "Leaf Elongation Factor at Salt Stress Conditions" = "salt_LeafElongationFactor", "Leaf Elongation Factor Relative" = "relative_LeafElongationFactor"), multiple = T, selected = c("control_LNa", "salt_LNa", "control_LK", "salt_LK", "control_dGP", "salt_dGP")),
                  selectInput("corrplotMethod", "Plot Method:", choices = c("circle", "square", "ellipse", "number", "shade", "color", "pie")),
                  selectInput("corType", "Plot Type:", choices = c("full", "lower", "upper")),
-                 selectInput("corOrder", "Order the lables by:", choices = c("original", "AOE",  "FPC",  "hclust", "alphabet"))
+                 selectInput("corOrder", "Order the lables by:", choices = list("Original order" = "original","Angular order of eigenvectors" = "AOE", "First Principal Component order"  = "FPC", "Hierarchical clustering order"  = "hclust", "Alphabetical order" = "alphabet"))
                ),
                mainPanel(
                  plotOutput("BIG_correlation_graph"),
@@ -204,7 +204,7 @@ mainPanel(
 navbarPage(title="",
 tabPanel("Clustering Heat Map",
       helpText("This graph represents the clustering of the lines based on three selected traits. The colors represent the phenotype value which has been normalized per trait with Z-Fisher transformation. Please note that the data per accession is based on the average trait value collected from 4 replicas only. "),
-      plotOutput("HotHeatMap"),
+      plotOutput("HotHeatMap", height = 800),
       helpText("The below graph represents a dendrogram of the accessions and how they are clustered based on the selected traits in", strong("Step1"),". The accessions are clustered using Ward linkage method and the x-axis is represents the distance between the individual accessions."),
       verbatimTextOutput("Cluster_message"),
       plotOutput("ClusterTree")),

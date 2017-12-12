@@ -15,8 +15,10 @@ library(plotly)
 library(agricolae)
 library(corrplot)
 library(Hmisc)
+library(made4)
 
 yve <- read.csv("melted_tomato.csv")
+head(yve)
 yve <- yve[,c("Trait", "AccessionName", "Condition", "variable", "value")]
 
 # yve <- na.omit(yve)

@@ -28,7 +28,7 @@ output$Select_genotype_for_anova <- renderUI({
     
     tagList(
       selectizeInput("gen_compare", label=("Chose the genotypes to compare"), choices= list_of_acc, multiple= T,
-                     selected = c("VF36", "LA0317", "LA0421", "LA0426")))    
+                     selected = c( "LA0317", "LA0421", "LA0426")))    
   })
 
 output$ANOVA_bar_error <- renderUI({
@@ -297,14 +297,15 @@ output$HotHeatMap <- renderPlot({
   clust_temp <- Yve_Cast[,c("AccessionName", clust_lista)]
   clust_temp <- na.omit(clust_temp)
   YVE_matrix <- clust_temp[,2:ncol(clust_temp)]
-  YVE_matrix = as.matrix(YVE_matrix)
+  YVE_matrix <- scale(as.matrix(YVE_matrix))
   row.names(YVE_matrix) <- clust_temp$AccessionName
   colnames(YVE_matrix) <- colnames(clust_temp)[2:(length(clust_lista)+1)]
-  YVE_t_matrix = t(YVE_matrix)
-  YVE_t_cor = cor(YVE_t_matrix,method=c("pearson"))
-  YVE_t_dist = dist(YVE_t_cor)
-  YVE_t_clust = hclust(YVE_t_dist, method="ward.D2")  
-  heatmap.2(YVE_t_matrix, Colv=as.dendrogram(YVE_t_clust), col=blue2red(100),scale=c("row"),density.info="none",trace="none", cexRow=0.7)
+  #YVE_t_matrix = t(YVE_matrix)
+  #YVE_t_cor = cor(YVE_t_matrix,method=c("pearson"))
+  #YVE_t_dist = dist(YVE_t_cor)
+  #YVE_t_clust = hclust(YVE_t_dist, method="ward.D2")  
+  #heatmap.2(YVE_t_matrix, Colv=as.dendrogram(YVE_t_clust), col=blue2yellow(100),scale=c("row"),density.info="none",trace="none", cexRow=0.7)
+  heatplot(YVE_matrix, scale = "none", dualScale = FALSE, margins=c(12,15))
 })
 
 output$HotANOVA <- renderPlot({
