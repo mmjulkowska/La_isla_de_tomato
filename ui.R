@@ -8,16 +8,22 @@ sidebarPanel(
 fluidRow(
 "This Application was build to allow further exploration of the natural variation in salt stress response of tomato seedlings collected from Galapagos islands.",br(), br(), 
 
-"This Application was developed to complement the manuscript entitled",br(),
-"YVELINE'S AWESOME MANUSCRIPT", br(),
-"Currently submitted for revision", 
+"This Application was developed to complement the manuscript entitled:",br(),br(),
+strong("Salinity responses in Galapagos tomatoes"), br(),br(),
+tags$i("Yveline Pailles, Mariam Awlia, Magdalena Julkowska, Luca Passone, Khadija Zemmouri, Sonia Negrao, Sandra M. Schmöckel, Mark Tester"),br(),br(),
+"The publication is currently submitted for revision", 
 br(), br(),
+"The README / information on how to use this app is available ", a("HERE!", href="https://mmjulkowska.github.io/La_isla_de_tomato/"), br(),br(),
+"The app was developed by Magdalena Julkowska", br(),
+a("Magdalena.Julkowska@kaust.edu.sa", href="https://github.com/mmjulkowska"),br(),br(),
 downloadButton("dataAll", label="Download underlying data")
 )),
 mainPanel(
 navbarPage(title="",
 tabPanel("Experimental Set-Up", icon = icon("flask"),
-helpText("Add the methodology here - maybe include a figure with set up - if already made")),
+"TO DO - Add the methodology here - maybe include a figure with set up - if already made",br(),br(),
+img(src="experimental_setup1.tif", align="center")
+         ),
 tabPanel("Traits", icon = icon("key"),
 helpText("Here provide the trait descriptions - how they were calculated and using which tools"))))
 # end tabPanel # 1
