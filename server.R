@@ -205,8 +205,29 @@ output$dwnldCorr <- downloadHandler(
 
 # - - - - - - - - - >> BIG CORRELATION ANALYSIS << - - - - - - - - - -
 
+output$Big_cor_subset_S <- renderUI({
+  if(input$Big_Cor_subset_Q == F){
+    return()
+  }
+  else{
+    selectizeInput(
+      inputId = "Cor_Big_which_species",
+      label = "Selected species:",
+      choices = species
+    )
+  }
+})
+
 output$BIG_correlation_graph <- renderPlot({
+  if(input$Big_Cor_subset_Q == T){
+    pheno_cor1 <- Yve_Cast[,c("AccessionName", "Species",input$Trait_corr_graph_biggie)]
+    pheno_cor2 <- subset(pheno_cor1, pheno_cor1$Species == input$Cor_Big_which_species)
+    pheno_cor <- subset(pheno_cor2, select = c("AccessionName",input$Trait_corr_graph_biggie))
+  }
+  else{
   pheno_cor <- Yve_Cast[,c("AccessionName",input$Trait_corr_graph_biggie)]
+  }
+  
   pheno_nona <- na.omit(pheno_cor)
   pheno_ready <- pheno_nona[,2:ncol(pheno_nona)]
   pheno_ready_m <- as.matrix(pheno_ready)
@@ -224,36 +245,103 @@ output$BIG_correlation_graph <- renderPlot({
 
 # - - - - - - - - >> SCATTER PLOT << - - - - - - - - -
 
+output$Scat_subset_S <- renderUI({
+  if(input$Scat_Cor_subset_Q == F){
+    return()
+  }
+  else{
+    selectInput(
+      inputId = "Scat_which_species",
+      label = "Selected species:",
+      choices = species
+    )
+  }
+})
+
 output$plot3 <- renderPlotly({
+  if(input$Scat_Cor_subset_Q == T){
+    pheno_cor1 <- Yve_Cast[,c("AccessionName", "Species",input$Trait_cor1, input$Trait_cor2)]
+    pheno_cor2 <- subset(pheno_cor1, pheno_cor1$Species == input$Scat_which_species)
+    pheno_cor <- subset(pheno_cor2, select = c("AccessionName",input$Trait_cor1, input$Trait_cor2))
+    pheno_cor <- na.omit(pheno_cor)
+    p <- plot_ly(pheno_cor, x= ~pheno_cor[,2], y=~pheno_cor[,3], type = 'scatter', mode = 'markers', text = ~pheno_cor[,1]) %>% 
+      layout(xaxis = list(title = paste(input$Trait_cor1)), yaxis = list(title = paste(input$Trait_cor2)))
+  }
+  if(input$Scat_Cor_subset_Q == F){
+    pheno_cor <- Yve_Cast[,c("AccessionName","Species", input$Trait_cor1, input$Trait_cor2)]  
+    pheno_cor <- na.omit(pheno_cor)
+    p <- plot_ly(pheno_cor, x= ~pheno_cor[,3], y=~pheno_cor[,4], color =~pheno_cor[,2], type = 'scatter', mode = 'markers', text = ~pheno_cor[,1]) %>% 
+      layout(xaxis = list(title = paste(input$Trait_cor1)), yaxis = list(title = paste(input$Trait_cor2)))
+  }
 
-pheno_cor <- Yve_Cast[,c("AccessionName",input$Trait_cor1, input$Trait_cor2)]
-pheno_cor <- na.omit(pheno_cor)
-
-p <- plot_ly(pheno_cor, x= ~pheno_cor[,2], y=~pheno_cor[,3], type = 'scatter', mode = 'markers', text = ~pheno_cor[,1]) %>% 
-layout(xaxis = list(title = paste(input$Trait_cor1)), yaxis = list(title = paste(input$Trait_cor2)))
+  p
 })
 
 output$corr <- renderText({
-pheno_cor <- Yve_Cast[,c("AccessionName",input$Trait_cor1, input$Trait_cor2)]
-pheno_cor <- na.omit(pheno_cor)
-correl <- cor(pheno_cor[,2], pheno_cor[,3])
-correl
-})
+  
+  if(input$Scat_Cor_subset_Q == T){
+    pheno_cor1 <- Yve_Cast[,c("AccessionName", "Species",input$Trait_cor1, input$Trait_cor2)]
+    pheno_cor2 <- subset(pheno_cor1, pheno_cor1$Species == input$Scat_which_species)
+    pheno_cor <- subset(pheno_cor2, select = c("AccessionName",input$Trait_cor1, input$Trait_cor2))
+    pheno_cor <- na.omit(pheno_cor)
+    correl <- cor(pheno_cor[,2], pheno_cor[,3])
+  }
+  if(input$Scat_Cor_subset_Q == F){
+    pheno_cor <- Yve_Cast[,c("AccessionName", input$Trait_cor1, input$Trait_cor2)] 
+    pheno_cor <- na.omit(pheno_cor)
+    correl <- cor(pheno_cor[,2], pheno_cor[,3])}
+
+  correl
+  })
 
 output$corpval <- renderText({
-pheno_cor <- Yve_Cast[,c("AccessionName",input$Trait_cor1, input$Trait_cor2)]
-pheno_cor <- na.omit(pheno_cor)
-pval <- cor.test(pheno_cor[,2], pheno_cor[,3])$p.val
+  
+  if(input$Scat_Cor_subset_Q == T){
+    pheno_cor1 <- Yve_Cast[,c("AccessionName", "Species",input$Trait_cor1, input$Trait_cor2)]
+    pheno_cor2 <- subset(pheno_cor1, pheno_cor1$Species == input$Scat_which_species)
+    pheno_cor <- subset(pheno_cor2, select = c("AccessionName",input$Trait_cor1, input$Trait_cor2))
+    pheno_cor <- na.omit(pheno_cor)
+    pval <- cor.test(pheno_cor[,2], pheno_cor[,3])$p.val
+  }
+  if(input$Scat_Cor_subset_Q == F){
+    pheno_cor <- Yve_Cast[,c("AccessionName", input$Trait_cor1, input$Trait_cor2)] 
+    pheno_cor <- na.omit(pheno_cor)
+    pval <- cor.test(pheno_cor[,2], pheno_cor[,3])$p.val
+    }
+  
 pval[1]
 })
 
 # - - - - - - - - >> CLUSTER ANALYSIS << - - - - - - - - -
 
+output$Clust_subset_S <- renderUI({
+  if(input$Clust_subset_Q == F){
+    return()
+  }
+  if(input$Clust_subset_Q == T){
+    selectizeInput(
+      inputId = "Cluster_species",
+      label = " Selected species:",
+      choices = species
+    )
+  }  
+})
+
 # Cluster tree of ALL accessions based on three selected traits
 output$ClusterTree <- renderPlot({
 	# make a temporary subset based on Clust1, Clust2 and Clust3 (les traits)
   clust_lista <-input$Clust_traits
-  clust_temp <- Yve_Cast[,c("AccessionName", clust_lista)]
+  
+  if(input$Clust_subset_Q == T){
+    clust_temp1 <- Yve_Cast[,c("AccessionName", "Species",clust_lista)]
+    clust_temp2 <- subset(clust_temp1, clust_temp1$Species == input$Cluster_species)
+    clust_temp <- subset(clust_temp2, select = c("AccessionName", clust_lista))
+  }
+  
+  if(input$Clust_subset_Q == F){
+    clust_temp <- Yve_Cast[,c("AccessionName", clust_lista)]  
+  }
+  
   clust_temp <- na.omit(clust_temp)
   YVE_matrix <- clust_temp[,2:ncol(clust_temp)]
   YVE_matrix = as.matrix(YVE_matrix)
@@ -269,7 +357,17 @@ output$ClusterTree <- renderPlot({
 
 output$Cluster_message <- renderPrint({
   clust_lista <-input$Clust_traits
-  clust_temp <- Yve_Cast[,c("AccessionName", clust_lista)]
+  
+  if(input$Clust_subset_Q == T){
+    clust_temp1 <- Yve_Cast[,c("AccessionName", "Species",clust_lista)]
+    clust_temp2 <- subset(clust_temp1, clust_temp1$Species == input$Cluster_species)
+    clust_temp <- subset(clust_temp2, select = c("AccessionName", clust_lista))
+  }
+  
+  if(input$Clust_subset_Q == F){
+    clust_temp <- Yve_Cast[,c("AccessionName", clust_lista)]  
+  }
+  
   clust_temp <- na.omit(clust_temp)
   YVE_matrix <- clust_temp[,2:ncol(clust_temp)]
   YVE_matrix = as.matrix(YVE_matrix)
@@ -294,7 +392,17 @@ output$Cluster_message <- renderPrint({
 
 output$HotHeatMap <- renderPlot({
   clust_lista <-input$Clust_traits
-  clust_temp <- Yve_Cast[,c("AccessionName", clust_lista)]
+  
+  if(input$Clust_subset_Q == T){
+    clust_temp1 <- Yve_Cast[,c("AccessionName", "Species",clust_lista)]
+    clust_temp2 <- subset(clust_temp1, clust_temp1$Species == input$Cluster_species)
+    clust_temp <- subset(clust_temp2, select = c("AccessionName", clust_lista))
+  }
+  
+  if(input$Clust_subset_Q == F){
+    clust_temp <- Yve_Cast[,c("AccessionName", clust_lista)]  
+  }
+  
   clust_temp <- na.omit(clust_temp)
   YVE_matrix <- clust_temp[,2:ncol(clust_temp)]
   YVE_matrix <- scale(as.matrix(YVE_matrix))
@@ -310,7 +418,17 @@ output$HotHeatMap <- renderPlot({
 
 output$HotANOVA <- renderPlot({
   clust_lista <-input$Clust_traits
-  clust_temp <- Yve_Cast[,c("AccessionName", clust_lista)]
+  
+  if(input$Clust_subset_Q == T){
+    clust_temp1 <- Yve_Cast[,c("AccessionName", "Species",clust_lista)]
+    clust_temp2 <- subset(clust_temp1, clust_temp1$Species == input$Cluster_species)
+    clust_temp <- subset(clust_temp2, select = c("AccessionName", clust_lista))
+  }
+  
+  if(input$Clust_subset_Q == F){
+    clust_temp <- Yve_Cast[,c("AccessionName", clust_lista)]  
+  }
+  
   clust_temp <- na.omit(clust_temp)
   YVE_matrix <- clust_temp[,2:ncol(clust_temp)]
   YVE_matrix = as.matrix(YVE_matrix)
@@ -344,7 +462,17 @@ amod <- aov(phenotype ~ cluster, data = to_test)
 
 CLU1 <- function(){
   clust_lista <-input$Clust_traits
-  clust_temp <- Yve_Cast[,c("AccessionName", clust_lista)]
+  
+  if(input$Clust_subset_Q == T){
+    clust_temp1 <- Yve_Cast[,c("AccessionName", "Species",clust_lista)]
+    clust_temp2 <- subset(clust_temp1, clust_temp1$Species == input$Cluster_species)
+    clust_temp <- subset(clust_temp2, select = c("AccessionName", clust_lista))
+  }
+  
+  if(input$Clust_subset_Q == F){
+    clust_temp <- Yve_Cast[,c("AccessionName", clust_lista)]  
+  }
+  
   clust_temp <- na.omit(clust_temp)
   YVE_matrix <- clust_temp[,2:ncol(clust_temp)]
   YVE_matrix = as.matrix(YVE_matrix)
