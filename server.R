@@ -218,6 +218,19 @@ output$Big_cor_subset_S <- renderUI({
   }
 })
 
+output$sig_cor_input <- renderUI({
+  if(input$sig_cor == F){
+    return()
+  }
+  if(input$sig_cor == T){
+    numericInput(
+      inputId = "cor_sig_lvl",
+      label = "p-value threshold",
+      value = 0.05
+    )
+  }
+})
+
 output$BIG_correlation_graph <- renderPlot({
   if(input$Big_Cor_subset_Q == T){
     pheno_cor1 <- Yve_Cast[,c("AccessionName", "Species",input$Trait_corr_graph_biggie)]
@@ -233,6 +246,7 @@ output$BIG_correlation_graph <- renderPlot({
   pheno_ready_m <- as.matrix(pheno_ready)
   colnames(pheno_ready_m) <- colnames(pheno_ready)
   
+  if(input$sig_cor == F){
   corrplot(
     cor(pheno_ready_m, method = "pearson"),
     method = input$corrplotMethod,
@@ -240,7 +254,21 @@ output$BIG_correlation_graph <- renderPlot({
     order = input$corOrder, 
     col = brewer.pal(n = 8, name = "PuOr"),
     tl.col = 'black', tl.cex=1, tl.offset = 3, tl.srt = 45
-  )
+  )}
+  
+  if(input$sig_cor == T){
+    thres <- as.numeric(as.character(input$cor_sig_lvl))
+    res1 <- cor.mtest(pheno_ready_m, conf.level = (1-thres))
+    corrplot(
+      cor(pheno_ready_m, method = "pearson"),
+      p.mat = res1$p,
+      sig.level = thres,
+      method = input$corrplotMethod,
+      type = input$corType,
+      order = input$corOrder, 
+      col = brewer.pal(n = 8, name = "PuOr"),
+      tl.col = 'black', tl.cex=1, tl.offset = 3, tl.srt = 45
+    )}
 })
 
 # - - - - - - - - >> SCATTER PLOT << - - - - - - - - -

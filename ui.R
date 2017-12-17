@@ -59,11 +59,13 @@ tabPanel("Examine correlations between individual traits", icon=icon("search-plu
       tabPanel("General Correlations",
                sidebarPanel(
                  selectInput("Trait_corr_graph_biggie", label="Select traits to be included in the correlation analysis", choices= list_casted, multiple = T, selected = c("control_Green_pixel_count_final", "control_Leaf_area", "control_Leaf_fresh_mass", "control_Leaf_perimeter", "control_Plant_dry_mass", "control_Water_content", "salt_Green_pixel_count_final", "salt_Leaf_area", "salt_Leaf_fresh_mass", "salt_Leaf_perimeter", "salt_Plant_dry_mass", "salt_Water_content")),
-                 checkboxInput("Big_Cor_subset_Q", "Do you want to subset per species?"),
+                 checkboxInput("Big_Cor_subset_Q", "Subset the correlation per species"),
                  uiOutput("Big_cor_subset_S"),
                  selectInput("corrplotMethod", "Plot Method:", choices = c("circle", "square", "ellipse", "number", "shade", "color", "pie")),
                  selectInput("corType", "Plot Type:", choices = c("full", "lower", "upper")),
-                 selectInput("corOrder", "Order the lables by:", choices = list("Original order" = "original","Angular order of eigenvectors" = "AOE", "First Principal Component order"  = "FPC", "Hierarchical clustering order"  = "hclust", "Alphabetical order" = "alphabet"))
+                 selectInput("corOrder", "Order the lables by:", choices = list("Original order" = "original","Angular order of eigenvectors" = "AOE", "First Principal Component order"  = "FPC", "Hierarchical clustering order"  = "hclust", "Alphabetical order" = "alphabet")),
+                 checkboxInput("sig_cor", "Highlight non-significant correlations"),
+                 uiOutput("sig_cor_input")
                ),
                mainPanel(
                  plotOutput("BIG_correlation_graph"),
