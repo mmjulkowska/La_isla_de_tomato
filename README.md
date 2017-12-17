@@ -3,7 +3,7 @@
 ### About the App
 This App was designed to enhance interactive exploration of the data presented in the manuscript "Salinity responses in Galapagos tomatoes" by _Yveline Pailles, Mariam Awlia, Magdalena Julkowska, Luca Passone, Khadija Zemmouri, Sonia Negrao, Sandra M. Schmöckel, Mark Tester_
 
-The manuscript is currently undergoing submission / revision, but this App is available to explore the data freely. The App can be accessed ![here](https://mmjulkowska.shinyapps.io/La_isla_de_tomato/) or run locally from your machine, by typing the following:
+The manuscript is currently undergoing submission / revision, but this App is available to explore the data freely. The App can be accessed [here](https://mmjulkowska.shinyapps.io/La_isla_de_tomato/) or run locally from your machine, by typing the following:
 `library("shiny")`
 `shiny::runGitHub("mmjulkowska/La_isla_de_tomato", "mmjulkowska")`
 
