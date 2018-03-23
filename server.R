@@ -462,6 +462,7 @@ output$HotANOVA <- renderPlot({
   YVE_matrix = as.matrix(YVE_matrix)
   row.names(YVE_matrix) <- clust_temp$AccessionName
   colnames(YVE_matrix) <- colnames(clust_temp)[2:(length(clust_lista)+1)]
+  
   YVE_t_matrix = t(YVE_matrix)
   YVE_t_cor = cor(YVE_t_matrix,method=c("pearson"))
   YVE_t_dist = dist(YVE_t_cor)
