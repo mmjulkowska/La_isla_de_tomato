@@ -3,7 +3,7 @@ function(input,output){
 output$dataAll <- downloadHandler(
 filename = "Pailles et al Tomato seedlings screen.csv",
 content <- function(file){
-file.copy("Pailles et al Tomato seedlings screen.csv", file)
+file.copy("melted_tomato.csv", file)
 	},
 contentType = "txt/csv")	
 

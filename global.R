@@ -23,7 +23,6 @@ yve <- yve[,c("Trait", "AccessionName", "Species","Condition", "variable", "valu
 
 # yve <- na.omit(yve)
 
-yveNOVA <- read.csv("Pailles et al Tomato seedlings screen.csv")
 
 YveSum <- summaryBy(value ~ AccessionName + Trait + Condition + Species, data = yve, FUN = function(x) { c(m = mean(x), se = std.error(x)) })
 head(YveSum)

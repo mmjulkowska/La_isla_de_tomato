@@ -147,7 +147,7 @@ fluidRow(
 br(),
 "Please select three phenotypes that you would like to take into consideration for the cluster analysis.", 
 
-selectizeInput("Clust_traits", label="Traits", choices=list_casted, multiple=T, selected = c("relative_Root_Na_concentration", "relative_Root_K_concentration", "relative_Leaf_number")),
+selectizeInput("Clust_traits", label="Traits", choices=list_casted, multiple=T, selected = c("relative_Leaf_elongation", "relative_Leaf_Na_concentration", "relative_Leaf_succulence", "relative_Leaf_number", "relative_Root_K_concentration", "relative_Root_Na_concentration", "relative_Stem_length", "relative_Leaf_area", "relative_Plant_fresh_mass", "relative_Green_pixel_count_difference", "relative_Leaf_K_concentration", "relative_Root_length")),
 checkboxInput("Clust_subset_Q", "Do you want to subset per species?"),
 uiOutput("Clust_subset_S"),
 
