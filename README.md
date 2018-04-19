@@ -51,22 +51,22 @@ The individual accessions will be clustered into different groups, depending on 
 
 You can chose the traits to be used for the hierarchical clustering in the side panel. And you can see as the heat map, and the clustering of your samples is changing while you add / remove the individual phenotypes. 
 
-Again - you can perform this hierarchical cluster analysis on individual species separately, or on all species together - by clicking the checkbox "Do you want to subset per species?"
+You can perform this hierarchical cluster analysis on individual species separately, or on all species together - by clicking the checkbox "Do you want to subset per species?"
 
-![tab4a](https://user-images.githubusercontent.com/14832460/34079985-9bac354a-e348-11e7-99ef-ec9fbb980a6f.png)
+![tab4a](https://user-images.githubusercontent.com/14832460/38990790-4755b3c0-43e4-11e8-8c5e-91a1aed7e559.png)
 
 When you scroll down, you will see a more detailed dendrogram of the samples clustered based on the chosen traits. 
 
-In order to select the number of the clusters, you need to enter the distance at which you would like to cut. Enter the number in the sidebar panel. As soon as you change the value, you will see the message in the grey message box above the dendrogram change, informing you how many clusters are formed if you cut at specific distance. 
+In order to select the number of the clusters, you need to enter the distance at which you would like to cut. Enter the number in the sidebar panel. As soon as you change the value, you will see the message in the grey message box above the dendrogram change, informing you how many clusters are formed if you cut at specific distance. Make sure that you have more than one cluster. 
 
 You can download the table containing the information which accessions belongs to which cluster on the left side in the sidebard panel.
 
-![tab4a2](https://user-images.githubusercontent.com/14832460/34079986-9bcb6992-e348-11e7-93f9-25d7c86da0e7.png)
+![tab4a2](https://user-images.githubusercontent.com/14832460/38990791-47acc296-43e4-11e8-8ed4-d6aa50b92c1f.png)
 
 The phenotypes representing indvidual clusters are represented in sub-tab "Cluster Validation", where you can select which traits will be displayed from the drop-down menu above the graph.
 
 The letters above the graph represent the significant groups as identified with pariwide Tukey test with threshold p-value of 0.05.
 
-![tab4b](https://user-images.githubusercontent.com/14832460/34079987-9bea7c88-e348-11e7-80f0-d1fd9f9a4b60.png)
+![tab4b](https://user-images.githubusercontent.com/14832460/38990792-47d0dafa-43e4-11e8-95c5-cb8e6bf2b5c7.png)
 
 _We hope you enjoyed this little instruction and will have fun exploring the data._
