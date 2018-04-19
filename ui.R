@@ -153,7 +153,6 @@ uiOutput("Clust_subset_S"),
 
 br(),
 "Have a look at the dendrogram and determine the value which should be used for splitting the accessions into individual clusters.", br(), br(),
-strong("ALERT:"), "Please note that if you chose too many clusters this analysis will not be informative and the subsequent post-hoc analysis will not be possible. We advise for the optimal number of clusters between three to ten.", br(), br(),
 "Below please enter the value at which you wish to cut the dendrogram",
 numericInput("tree_cut", label="Cut tree at", value="4"),
 br(),
