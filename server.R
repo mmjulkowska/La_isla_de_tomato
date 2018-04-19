@@ -372,13 +372,14 @@ output$ClusterTree <- renderPlot({
   
   clust_temp <- na.omit(clust_temp)
   YVE_matrix <- clust_temp[,2:ncol(clust_temp)]
-  YVE_matrix = as.matrix(YVE_matrix)
+  YVE_matrix <- scale(as.matrix(YVE_matrix))
   row.names(YVE_matrix) <- clust_temp$AccessionName
   colnames(YVE_matrix) <- colnames(clust_temp)[2:(length(clust_lista)+1)]
+  
   YVE_t_matrix = t(YVE_matrix)
   YVE_t_cor = cor(YVE_t_matrix,method=c("pearson"))
   YVE_t_dist = dist(YVE_t_cor)
-  YVE_t_clust = hclust(YVE_t_dist, method="ward.D2")  
+  YVE_t_clust = hclust(YVE_t_dist, method="average")  
 	Clufa <- plot(as.dendrogram(YVE_t_clust), horiz=T)
 	Clufa
 })
@@ -398,13 +399,13 @@ output$Cluster_message <- renderPrint({
   
   clust_temp <- na.omit(clust_temp)
   YVE_matrix <- clust_temp[,2:ncol(clust_temp)]
-  YVE_matrix = as.matrix(YVE_matrix)
+  YVE_matrix <- scale(as.matrix(YVE_matrix))
   row.names(YVE_matrix) <- clust_temp$AccessionName
   colnames(YVE_matrix) <- colnames(clust_temp)[2:(length(clust_lista)+1)]
   YVE_t_matrix = t(YVE_matrix)
   YVE_t_cor = cor(YVE_t_matrix,method=c("pearson"))
   YVE_t_dist = dist(YVE_t_cor)
-  YVE_t_clust = hclust(YVE_t_dist, method="ward.D2") 
+  YVE_t_clust = hclust(YVE_t_dist, method="average") 
   
   cluster <- as.data.frame(cutree(YVE_t_clust,h=as.numeric(input$tree_cut)))
   names(cluster)[1] <- "cluster"
@@ -436,10 +437,12 @@ output$HotHeatMap <- renderPlot({
   YVE_matrix <- scale(as.matrix(YVE_matrix))
   row.names(YVE_matrix) <- clust_temp$AccessionName
   colnames(YVE_matrix) <- colnames(clust_temp)[2:(length(clust_lista)+1)]
-  #YVE_t_matrix = t(YVE_matrix)
-  #YVE_t_cor = cor(YVE_t_matrix,method=c("pearson"))
-  #YVE_t_dist = dist(YVE_t_cor)
-  #YVE_t_clust = hclust(YVE_t_dist, method="ward.D2")  
+  
+  YVE_t_matrix = t(YVE_matrix)
+  YVE_t_cor = cor(YVE_t_matrix,method=c("pearson"))
+  YVE_t_dist = dist(YVE_t_cor)
+  YVE_t_clust = hclust(YVE_t_dist, method="average")  
+  
   #heatmap.2(YVE_t_matrix, Colv=as.dendrogram(YVE_t_clust), col=blue2yellow(100),scale=c("row"),density.info="none",trace="none", cexRow=0.7)
   heatplot(YVE_matrix, scale = "none", dualScale = FALSE, margins=c(12,15))
 })
@@ -459,14 +462,14 @@ output$HotANOVA <- renderPlot({
   
   clust_temp <- na.omit(clust_temp)
   YVE_matrix <- clust_temp[,2:ncol(clust_temp)]
-  YVE_matrix = as.matrix(YVE_matrix)
+  YVE_matrix <- scale(as.matrix(YVE_matrix))
   row.names(YVE_matrix) <- clust_temp$AccessionName
   colnames(YVE_matrix) <- colnames(clust_temp)[2:(length(clust_lista)+1)]
   
   YVE_t_matrix = t(YVE_matrix)
   YVE_t_cor = cor(YVE_t_matrix,method=c("pearson"))
   YVE_t_dist = dist(YVE_t_cor)
-  YVE_t_clust = hclust(YVE_t_dist, method="ward.D2")   
+  YVE_t_clust = hclust(YVE_t_dist, method="average")   
 # cut_tree at $tree_cut value (but first make it numeric)
 cluster <- as.data.frame(cutree(YVE_t_clust,h=as.numeric(input$tree_cut)))
 names(cluster)[1] <- "cluster"
@@ -504,13 +507,14 @@ CLU1 <- function(){
   
   clust_temp <- na.omit(clust_temp)
   YVE_matrix <- clust_temp[,2:ncol(clust_temp)]
-  YVE_matrix = as.matrix(YVE_matrix)
+  YVE_matrix <- scale(as.matrix(YVE_matrix))
   row.names(YVE_matrix) <- clust_temp$AccessionName
   colnames(YVE_matrix) <- colnames(clust_temp)[2:(length(clust_lista)+1)]
+  
   YVE_t_matrix = t(YVE_matrix)
   YVE_t_cor = cor(YVE_t_matrix,method=c("pearson"))
   YVE_t_dist = dist(YVE_t_cor)
-  YVE_t_clust = hclust(YVE_t_dist, method="ward.D2")  
+  YVE_t_clust = hclust(YVE_t_dist, method="average")  
   # cut_tree at $tree_cut value (but first make it numeric)
   cluster <- as.data.frame(cutree(YVE_t_clust,h=as.numeric(input$tree_cut)))
   names(cluster)[1] <- "cluster"
