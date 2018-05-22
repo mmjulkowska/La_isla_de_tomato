@@ -9,6 +9,8 @@ The manuscript is currently undergoing submission / revision, but this App is av
 
 The App was coded with R / Shiny. The code is freely available at [github](https://github.com/mmjulkowska/La_isla_de_tomato) for use and reproduction or tweaking to your own results.
 
+The app DOI: 10.5281/zenodo.1226455
+
 If you have any questions about the app - please dont hesitate to contact [Magdalena Julkowska](https://github.com/mmjulkowska?tab=repositories)
 
 ## What can you do with this app?
